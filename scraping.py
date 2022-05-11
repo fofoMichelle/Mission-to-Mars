@@ -15,6 +15,7 @@ def scrape_all():
     browser = Browser('chrome', **executable_path, headless=True)
 
     news_title, news_paragraph= mars_news(browser)
+    hemisphere_image_urls=hemispheres(browser)
 
     # Run all scraping functions and store results in a dictionary
     data = {
@@ -22,6 +23,7 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
+        "hemispheres":hemisphere_image_urls,
         "last_modified": dt.datetime.now()      
     }  
 
@@ -34,7 +36,7 @@ def mars_news(browser):
     #Scrape Mars News
     # Visit the mars nasa news site
     
-    url = 'https://redplanetscience.com'
+    url = 'https://data-class-mars.s3.amazonaws.com/Mars/index.html'
     browser.visit(url)
 
     # Optional delay for loading the page
@@ -93,7 +95,7 @@ def featured_image(browser):
     except AttributeError:
         return None
     # Use the base URL to create an absolute URL
-    img_url = f'https://spaceimages-mars.com/JPL_Space/{img_url_rel}'
+    img_url = f'https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/{img_url_rel}'
     
     return img_url
 
@@ -103,6 +105,7 @@ def mars_facts():
     try:
     
         # use 'read_html" to scrape the facts table into a dataframe
+        
         df = pd.read_html('https://data-class-mars-facts.s3.amazonaws.com/Mars_Facts/index.html')[0]
     
     except BaseException:
@@ -115,9 +118,42 @@ def mars_facts():
     
     # Convert dataframe into HTML format, add bootstrap
 
-    return df.to_html()
+    return df.to_html(classes="table table-striped")
 
+def hemispheres(browser):
+    url = 'https://marshemispheres.com/'
 
+    browser.visit(url)
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+
+    for i in range(4):
+    
+        #Create empty dictionary
+        hemispheres={}
+    
+        #Find a common css element for the full resolution image ad click
+        browser.find_by_css('a.product-item h3')[i].click()
+    
+        #Find the Sample image anchor tag
+        sample_element=browser.links.find_by_text('Sample').first
+    
+        #Save the hemisphere image url to the dictionary
+        hemispheres['img_url']=sample_element['href']
+    
+        #Save the hemisphere title to the dictionary
+        hemispheres['title']=browser.find_by_css('h2.title').text
+    
+        #Add Objects to the list
+        hemisphere_image_urls.append(hemispheres)
+    
+        #Go back
+        browser.back()
+ 
+
+    return (hemisphere_image_urls)
 if __name__ == "__main__":
 
         # If running as script, print scraped data
