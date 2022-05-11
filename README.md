@@ -15,7 +15,7 @@ This project used a lot of tools to scrape data from the websites and present Ma
 - Pandas,BeautifulSoup,ChromeDriverManager,PyMongo
 -
 ## Outcome
-We the help of those tools we developped an website that showcased the different images we scraped from website and our app was mobile responsive and desktop responsive
+With the help of those tools we developped an website that showcased the different images we scraped from website and our app was mobile responsive and desktop responsive
 
 Below are screenshots of the final outcome.
 
